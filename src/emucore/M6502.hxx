@@ -250,6 +250,11 @@ class M6502
     static const char* ourInstructionMnemonicTable[256];
 
     int myTotalInstructionCount;
+
+#ifdef ALE_USE_AFL
+protected:
+  ale::AFLIntegration aflIntegration();
+#endif
 };
 
 #endif

@@ -1,6 +1,7 @@
-option(BUILD_PYTHON_LIB "Build Python Interface" ON)
+option(BUILD_PYTHON_LIB "Build Python Interface" OFF)
 option(BUILD_CPP_LIB "Build C++ Interface" ON)
 option(SDL_SUPPORT "Enable SDL support" OFF)
+option(AFL_SUPPORT "VM-level support for afl-fuzz" ON)
 
 # Include src/ and cmake binary directory (for version.hpp)
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
@@ -47,6 +48,12 @@ if(SDL_SUPPORT)
       $<$<BOOL:${SDL_DYNLOAD}>:SDL_DYNLOAD>)
   target_link_libraries(ale PRIVATE $<$<NOT:$<BOOL:${SDL_DYNLOAD}>>:SDL2::SDL2>)
   target_include_directories(ale PRIVATE ${SDL2_INCLUDE_DIRS})
+endif()
+
+if (AFL_SUPPORT)
+  target_compile_definitions(ale
+    PUBLIC
+      ALE_AFL_SUPPORT)
 endif()
 
 configure_file ("version.hpp.in" "version.hpp")

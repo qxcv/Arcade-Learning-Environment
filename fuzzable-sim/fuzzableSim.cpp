@@ -33,8 +33,9 @@ int main(int argc, char** argv) {
   ale.setFloat("repeat_action_probability", 0.0);
 
 #ifdef ALE_SDL_SUPPORT
-  ale.setBool("display_screen", true);
-  ale.setBool("sound", true);
+  // Don't display anything, want this to be fast under fuzz.
+  ale.setBool("display_screen", false);
+  ale.setBool("sound", false);
 #endif
 
   // Load the ROM file. (Also resets the system for new settings to
