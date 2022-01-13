@@ -111,6 +111,9 @@ bool M6502Low::execute(uint32_t number)
     {
       // Yes, so handle the interrupt
       interruptHandler();
+#ifdef ALE_AFL_SUPPORT
+      aflIntegration.maybeLog(PC);
+#endif // ALE_AFL_SUPPORT
     }
 
     // See if execution has been stopped

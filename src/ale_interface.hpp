@@ -209,6 +209,11 @@ class ALEInterface {
                             std::unique_ptr<Settings>& theSettings);
   static void loadSettings(const fs::path& romfile,
                            std::unique_ptr<OSystem>& theOSystem);
+
+#ifdef ALE_AFL_SUPPORT
+ public:
+  bool launchAFLForkServer();
+#endif // ALE_AFL_SUPPORT
 };
 
 }  // namespace ale

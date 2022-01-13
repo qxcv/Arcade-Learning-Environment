@@ -48,6 +48,7 @@
 #include "common/Constants.h"
 #include "emucore/Console.hxx"
 #include "emucore/Props.hxx"
+#include "emucore/M6502.hxx"
 #include "emucore/MD5.hxx"
 #include "environment/ale_screen.hpp"
 #include "games/RomSettings.hpp"
@@ -388,5 +389,15 @@ ScreenExporter*
 ALEInterface::createScreenExporter(const std::string& filename) const {
   return new ScreenExporter(theOSystem->colourPalette(), filename);
 }
+
+#ifdef ALE_AFL_SUPPORT
+bool ALEInterface::launchAFLForkServer() {
+  // TODO: get system somehow from this morass…
+  Console &console = theOSystem->console();
+  System &system = console.system();
+  M6502 &m6502 = system.m6502();
+  return m6502.getAFLIntegration()->launchForkServer();
+}
+#endif // ALE_AFL_SUPPORT
 
 }  // namespace ale

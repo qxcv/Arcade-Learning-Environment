@@ -42,27 +42,27 @@ int main(int argc, char** argv) {
   // take effect.)
   ale.loadROM(argv[1]);
 
-  // Get the vector of legal actions
-  ale::ActionVect legal_actions = ale.getLegalActionSet();
-
-  float totalReward = 0;
-  int steps = 0;
-  while (!ale.game_over()) {
-    char actChar;
-    std::cin >> actChar;
-    // Character 'a' corresponds to the first action in the Action enum (in
-    // Constants.h). Each of the PLAYER_A_* actions is assigned a subsequent
-    // letter in order.
-    int actIdx = ((int)(actChar - 'a')) % PLAYER_A_MAX;
-    if (actIdx < 0 || actIdx >= PLAYER_A_MAX) {
-      continue;
+  bool isChild = ale.launchAFLForkServer();
+  if (isChild) {
+    float totalReward = 0;
+    int steps = 0;
+    while (!ale.game_over()) {
+      char actChar;
+      std::cin >> actChar;
+      // Character 'a' corresponds to the first action in the Action enum (in
+      // Constants.h). Each of the PLAYER_A_* actions is assigned a subsequent
+      // letter in order.
+      int actIdx = ((int)(actChar - 'a')) % PLAYER_A_MAX;
+      if (actIdx < 0 || actIdx >= PLAYER_A_MAX) {
+        continue;
+      }
+      ale::Action a = (ale::Action)actIdx;
+      totalReward += ale.act(a);
+      steps++;
     }
-    ale::Action a = (ale::Action)actIdx;
-    totalReward += ale.act(a);
-    steps++;
+    std::cout << "Steps:" << steps << std::endl;
+    std::cout << "Reward: " << totalReward << std::endl;
   }
-  std::cout << "Steps:" << steps << std::endl;
-  std::cout << "Reward: " << totalReward << std::endl;
 
   return 0;
 }

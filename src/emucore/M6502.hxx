@@ -24,6 +24,7 @@ class Serializer;
 class Deserializer;
 
 #include "emucore/System.hxx"
+#include "ale_afl.hpp"
 #include <cstdint>
 
 /**
@@ -251,10 +252,17 @@ class M6502
 
     int myTotalInstructionCount;
 
-#ifdef ALE_USE_AFL
-protected:
-  ale::AFLIntegration aflIntegration();
-#endif
+#ifdef ALE_AFL_SUPPORT
+  protected:
+    ale::AFLIntegration aflIntegration;
+
+  public:
+    ale::AFLIntegration *getAFLIntegration() {
+      // TODO(sam): figure out how to stop pointers to this member from
+      // outliving the class instance.
+      return &aflIntegration;
+    };
+#endif // ALE_AFL_SUPPORT
 };
 
 #endif

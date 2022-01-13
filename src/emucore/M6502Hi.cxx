@@ -79,9 +79,6 @@ bool M6502High::execute(uint32_t number)
     {
       uint16_t operandAddress = 0;
       uint8_t operand = 0;
-#ifdef ALE_AFL_SUPPORT
-      bool possibleBranch = false;
-#endif
 
 #ifdef DEBUG
       debugStream << "PC=" << hex << setw(4) << PC << " ";
@@ -108,12 +105,6 @@ bool M6502High::execute(uint32_t number)
 
       myTotalInstructionCount++;
 
-#ifdef ALE_AFL_SUPPORT
-      if (possibleBranch) {
-        aflIntegration.maybeLog(PC);
-      }
-#endif
-
 #ifdef DEBUG
       debugStream << hex << setw(4) << operandAddress << " ";
       debugStream << setw(4) << ourInstructionMnemonicTable[IR];
@@ -134,6 +125,9 @@ bool M6502High::execute(uint32_t number)
     {
       // Yes, so handle the interrupt
       interruptHandler();
+#ifdef ALE_AFL_SUPPORT
+      aflIntegration.maybeLog(PC);
+#endif // ALE_AFL_SUPPORT
     }
 
     // See if execution has been stopped

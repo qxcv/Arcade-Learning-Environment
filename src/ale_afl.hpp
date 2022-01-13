@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <iostream>
 #include "../AFL/config.h"
 
 namespace ale {
@@ -35,8 +36,63 @@ namespace ale {
         address. This keeps the instrumented locations stable across runs. */
       if (PC >= aflInstRMS) return;
 
-      afl_area_ptr[PC ^ lastPC]++;
+      aflAreaPtr[PC ^ lastPC]++;
       lastPC = PC >> 1;
+    }
+
+    bool launchForkServer() {
+      // Tell parent we're alive. Note that FORKSRV_FD is already open because
+      // `afl-fuzz` opened it before fork().
+      static unsigned char tmp[4];
+      if (write(FORKSRV_FD + 1, tmp, 4) != 4) {
+        std::cerr << "Parent write failed, no AFL fork server." << std::endl;
+        return false;
+      };
+
+      /* All right, let's await orders... */
+      while (1) {
+        /* Whoops, parent dead? */
+        if (read(FORKSRV_FD, tmp, 4) != 4) {
+          std::cerr << "AFL parent silent, aborting fork server" << std::endl;
+          break;
+        }
+
+        pid_t childPID = fork();
+        if (childPID < 0) {
+          if (errno) {
+            perror("fork");
+          }
+          std::cerr << "AFL parent silent, aborting fork server" << std::endl;
+          break;
+        }
+
+        if (!childPID) {
+          /* Child process. Close descriptors and run free. */
+          /* afl_fork_child = 1; (I believe this was for deugging purposes in
+                                  afl-qemu-cpu-inl.h) */
+          close(FORKSRV_FD);
+          close(FORKSRV_FD + 1);
+          return true;
+        }
+
+        if (write(FORKSRV_FD + 1, &childPID, 4) != 4) {
+          std::cerr << "Couldn't send child PID to AFL, aborting" << std::endl;
+          break;
+        }
+
+        /* Get and relay exit status to parent. */
+        int status;
+        if (waitpid(childPID, &status, 0) < 0) {
+          std::cerr << "Child wait failed, forkserver aborting" << std::endl;
+          break;
+        }
+        if (write(FORKSRV_FD + 1, &status, 4) != 4) {
+          std::cerr << "Couldn't send status to AFL, aborting" << std::endl;
+          break;
+        }
+      }
+      // we only get here on error
+      return false;
     }
 
   private:
@@ -48,9 +104,8 @@ namespace ale {
       // Determine what fraction of branches get instrumented. Copied from
       // afl_setup in afl-qemu-cpu-inl.h.
       char *instR = getenv("AFL_INSTRATIO");
-      int r = 100;
+      unsigned int r = 100;
       if (instR) {
-        unsigned int r;
         r = atoi(instR);
       } else if (errno) {
         // don't bail out, just log error
@@ -69,24 +124,19 @@ namespace ale {
         } else {
           fprintf(stderr, "no environment variable '%s'\n", SHM_ENV_VAR);
         }
-        goto err;
+        return NULL;
       }
       int shmId = atoi(shmIdStr);
       if (!shmId) {
         fprintf(stderr, "could not convert %s='%s' to integer\n", SHM_ENV_VAR, shmIdStr);
-        goto err;
+        return NULL;
       }
-      char *shmBlock = shmat(shmId, NULL, 0);
+      char *shmBlock = (char*)shmat(shmId, NULL, 0);
       if (shmBlock == (char*)-1) {
         perror("shmat");
-        goto err;
+        return NULL;
       }
       return shmBlock;
-    err:
-      // error message for all the above failure cases
-      // TODO(sam): convert this into an exception or something
-      fprintf(stderr, "AFL disabled due to error (see above)");
-      return NULL;
     }
   };
 } // namespace ale

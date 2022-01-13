@@ -672,7 +672,7 @@ define(M6502_TYA, `{
 
 define(POSSIBLE_BRANCH, `{
 #ifdef ALE_AFL_SUPPORT
-possibleBranch = true;
+  aflIntegration.maybeLog(PC);
 #endif
 }')
 
