@@ -45,8 +45,9 @@ namespace ale {
       // `afl-fuzz` opened it before fork().
       static unsigned char tmp[4];
       if (write(FORKSRV_FD + 1, tmp, 4) != 4) {
-        std::cerr << "Parent write failed, no AFL fork server." << std::endl;
-        return false;
+        std::cerr << "Parent write failed, no AFL fork server. "
+          "Pretending to be child so that run continues." << std::endl;
+        return true;
       };
 
       /* All right, let's await orders... */
