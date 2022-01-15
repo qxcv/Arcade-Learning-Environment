@@ -13,7 +13,7 @@
 // See the file "license" for information on usage and redistribution of
 // this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //
-// $Id: M6502Hi.ins,v 1.2 2005/06/16 01:11:28 stephena Exp $
+// $Id: M6502Hi.m4,v 1.2 2005/06/16 01:11:29 stephena Exp $
 //============================================================================
 
 /**
@@ -21,7 +21,7 @@
   high compatibility emulation
 
   @author  Bradford W. Mott
-  @version $Id: M6502Hi.ins,v 1.2 2005/06/16 01:11:28 stephena Exp $
+  @version $Id: M6502Hi.m4,v 1.2 2005/06/16 01:11:29 stephena Exp $
 */
 
 #ifndef NOTSAMEPAGE
@@ -114,19 +114,21 @@
 // See the file "license" for information on usage and redistribution of
 // this file, and for a DISCLAIMER OF ALL WARRANTIES.
 //
-// $Id: M6502Hi.ins,v 1.2 2005/06/16 01:11:28 stephena Exp $
+// $Id: M6502.m4,v 1.4 2005/06/16 01:11:28 stephena Exp $
 //============================================================================
 
 /** 
   Code and cases to emulate each of the 6502 instruction 
 
   @author  Bradford W. Mott
-  @version $Id: M6502Hi.ins,v 1.2 2005/06/16 01:11:28 stephena Exp $
+  @version $Id: M6502.m4,v 1.4 2005/06/16 01:11:28 stephena Exp $
 */
 
 #ifndef NOTSAMEPAGE
   #define NOTSAMEPAGE(_addr1, _addr2) (((_addr1) ^ (_addr2)) & 0xff00)
 #endif
+
+
 
 
 
@@ -858,6 +860,11 @@ case 0x90:
     PC = address;
   }
 }
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
+}
 break;
 
 
@@ -874,6 +881,11 @@ case 0xb0:
       peek((PC & 0xFF00) | (address & 0x00FF));
     PC = address;
   }
+}
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
 }
 break;
 
@@ -892,6 +904,11 @@ case 0xf0:
     PC = address;
   }
 }
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
+}
 break;
 
 
@@ -903,6 +920,11 @@ case 0x24:
   notZ = (A & operand);
   N = operand & 0x80;
   V = operand & 0x40;
+}
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
 }
 break;
 
@@ -916,6 +938,11 @@ case 0x2C:
   notZ = (A & operand);
   N = operand & 0x80;
   V = operand & 0x40;
+}
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
 }
 break;
 
@@ -934,6 +961,11 @@ case 0x30:
     PC = address;
   }
 }
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
+}
 break;
 
 
@@ -951,6 +983,11 @@ case 0xD0:
     PC = address;
   }
 }
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
+}
 break;
 
 
@@ -967,6 +1004,11 @@ case 0x10:
       peek((PC & 0xFF00) | (address & 0x00FF));
     PC = address;
   }
+}
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
 }
 break;
 
@@ -986,6 +1028,11 @@ case 0x00:
   PC = peek(0xfffe);
   PC |= ((uint16_t)peek(0xffff) << 8);
 }
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
+}
 break;
 
 
@@ -1003,6 +1050,11 @@ case 0x50:
     PC = address;
   }
 }
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
+}
 break;
 
 
@@ -1019,6 +1071,11 @@ case 0x70:
       peek((PC & 0xFF00) | (address & 0x00FF));
     PC = address;
   }
+}
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
 }
 break;
 
@@ -2028,6 +2085,11 @@ case 0x4c:
 {
   PC = operandAddress;
 }
+/* Unconditional control flow, no need for {
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
+} */
 break;
 
 case 0x6c:
@@ -2044,6 +2106,11 @@ case 0x6c:
 {
   PC = operandAddress;
 }
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
+}
 break;
 
 
@@ -2059,6 +2126,11 @@ case 0x20:
   poke(0x0100 + SP--, PC & 0xff);
 
   PC = low | ((uint16_t)peek(PC++) << 8); 
+}
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
 }
 break;
 
@@ -3413,6 +3485,11 @@ case 0x40:
   PC = peek(0x0100 + SP++);
   PC |= ((uint16_t)peek(0x0100 + SP) << 8);
 }
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
+}
 break;
 
 
@@ -3425,6 +3502,11 @@ case 0x60:
   PC = peek(0x0100 + SP++);
   PC |= ((uint16_t)peek(0x0100 + SP) << 8);
   peek(PC++);
+}
+{
+#ifdef ALE_AFL_SUPPORT
+  aflIntegration.maybeLog(PC);
+#endif
 }
 break;
 
