@@ -15,43 +15,14 @@
  *  sharedLibraryInterfaceExample.cpp.
  **************************************************************************** */
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
+#include <optional>
+
 #include <ale_interface.hpp>
+#include "fuzzableCommon.h"
 
 using namespace std;
-
-class CharFeed {
-public:
-  CharFeed() {}
-
-  bool nextChar(char *dest) {
-    if (unreadStart >= lastReadSize) {
-      // read again
-      unreadStart = 0;
-      lastReadSize = fread(buffer.data(), 1, capacity, stdin);
-      if (lastReadSize == 0) {
-        if (feof(stdin)) {
-          // signal EOF
-          return false;
-        } else if (ferror(stdin)) {
-          // print error & then treat as EOF
-          perror("fread");
-          clearerr(stdin);
-          return false;
-        }
-      }
-    }
-    *dest = buffer[unreadStart++];
-    return true;
-  }
-
-private:
-  static const unsigned int capacity = 1024;
-  unsigned int unreadStart = 0;
-  size_t lastReadSize = 0;
-  std::array<char, capacity> buffer;
-};
 
 int main(int argc, char** argv) {
   if (argc < 2) {
@@ -81,18 +52,17 @@ int main(int argc, char** argv) {
     float totalReward = 0;
     int steps = 0;
     while (!ale.game_over()) {
-      char actChar;
-      if (!charFeed.nextChar(&actChar)) {
+      auto maybeActChar = charFeed.nextChar();
+      if (!maybeActChar) {
+        // EOF or read error, stop
         break;
       }
-      // Character 'a' corresponds to the first action in the Action enum (in
-      // Constants.h). Each of the PLAYER_A_* actions is assigned a subsequent
-      // letter in order.
-      int actIdx = ((int)(actChar - 'a')) % PLAYER_A_MAX;
-      if (actIdx < 0 || actIdx >= PLAYER_A_MAX) {
-        break; // stop when we get an invalid character
+      auto maybeAction = getAction(*maybeActChar);
+      if (!maybeAction) {
+        // invalid character, stop
+        break;
       }
-      ale::Action a = (ale::Action)actIdx;
+      ale::Action a = *maybeAction;
       totalReward += ale.act(a);
       steps++;
     }
