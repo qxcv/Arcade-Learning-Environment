@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
       totalReward += ale.act(a);
       steps++;
     }
-    std::cout << "Steps:" << steps << std::endl;
+    std::cout << "Steps: " << steps << std::endl;
     std::cout << "Reward: " << totalReward << std::endl;
   }
 

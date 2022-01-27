@@ -13,4 +13,4 @@ if [ "$#" -ne 1 ]; then
     echo "USAGE: $0 <dir>"
     exit 1
 fi
-ffmpeg -r 60 -i "$1"/%06d.png -i "$1"/sound.wav -f mp4 -c:a mp3 -c:v libx264 agent.mp4
+ffmpeg -r 60 -i "$1"/%06d.png -i "$1"/sound.wav -f mp4 -c:a mp3 -c:v libx264 -loglevel error agent.mp4
