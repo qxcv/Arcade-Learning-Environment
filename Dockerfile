@@ -6,7 +6,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get -y update \
   && apt-get install -y build-essential cmake ffmpeg git curl zip unzip wget tar pkg-config
 
-RUN useradd -m wabbit
+RUN useradd -s /bin/bash -m wabbit
 USER wabbit
 
 # the mkdir ~/.vcpkg is to stop vcpkg integrate install from dying with "no such
