@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/bin/bash
 
 # Find the path to a rom supplied by name
 
@@ -23,7 +23,9 @@ if [ ! -f "$md5_path" ]; then
     # remake the index of ROM paths
     find "$rom_dir" -name '*.bin' \
         | while read f; do
-            md5sum -b "$f"
+            md5sum="$(md5sum -b "$f" | cut -d ' ' -f 1)"
+            relpath="$(realpath --relative-to "$rom_dir" "$f")"
+            echo "$md5sum *$relpath"
         done > "$md5_path"
 fi
 
@@ -40,11 +42,12 @@ fi
 
 echo "ROM name ${rom_name} has MD5 ${md5}" > /dev/stderr
 
-rom_path="$(grep "^${md5} *" "$md5_path" | cut -d '*' -f 2- | head -n 1 || echo)"
-if [ -z "$rom_path" ]; then
+rom_path_base="$(grep "^${md5} *" "$md5_path" | cut -d '*' -f 2- | head -n 1 || echo)"
+rom_path_full="$(readlink -f "$rom_dir/$rom_path_base")"
+if [ -z "$rom_path_full" ]; then
     echo "Could not find a ROM with MD5 ${md5} in ${md5_path}"
     exit 1
 fi
 
-echo "$rom_path"
+echo "$rom_path_full"
 exit 0  # make it explicit

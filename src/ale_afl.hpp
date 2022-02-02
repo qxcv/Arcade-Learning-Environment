@@ -127,8 +127,8 @@ namespace ale {
         }
         return NULL;
       }
-      int shmId = atoi(shmIdStr);
-      if (!shmId) {
+      int shmId = (int)strtol(shmIdStr, NULL, 10);
+      if (errno != 0) {
         fprintf(stderr, "could not convert %s='%s' to integer\n", SHM_ENV_VAR, shmIdStr);
         return NULL;
       }
