@@ -8,8 +8,8 @@ doc/examples/*Example
 
 # Emacs temp files
 *~
-.*
 *#
+.#*
 
 # Auto-generated dependency files
 .deps

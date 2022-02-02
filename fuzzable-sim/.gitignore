@@ -1,0 +1,10 @@
+hangs/
+crashes/
+queue/
+plot_data
+.cur_input
+fuzz_bitmap
+fuzzer_stats
+*.png
+*.wav
+*.mp4
