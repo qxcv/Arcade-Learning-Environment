@@ -33,10 +33,16 @@ if [ -z "$(docker image ls -q "$latest_wabbit_uid_gid")" ]; then
   set +x
 fi
 
+if tty -s; then
+    interact_flags=("-ti")
+else
+    declare -a interact_flags
+fi
+
 # FIXME(sam): use `root` user when running with user-mode docker (which maps
 # `root` UID to host user UID) and `wabbit` otherwise.
-exec docker run -ti --rm \
-    -v "$above_dir":"$mount_repo_dest:rw" \
+exec docker run "${interact_flags[@]}" --rm \
+    -v "$above_dir:$mount_repo_dest:rw" \
     -v "$host_rom_dir:$mount_rom_dest:ro" \
     -w "$mount_repo_dest/fuzzable-sim" \
     -u root \
