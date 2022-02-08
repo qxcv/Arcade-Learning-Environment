@@ -16,6 +16,11 @@ rom_path="$(./romPath.sh "$rom_path")"
 SDL_VIDEODRIVER=dummy ./build/recordVideo "$rom_path" "$tmpdir" \
                < "$actions_path" \
     |& tee -a "$record_video_out"
+if [ -e agent.mp4 ]; then
+    # if previous invocation of joinVideo.sh fails then agent.mp4 will still be
+    # lying around, causing ffmpeg to bail out due to existing video
+    rm -f agent.mp4
+fi
 ./joinVideo.sh "$tmpdir"
 # extract "^Steps: <n>$", "^Reward: <n>$" "^  Cart Name: <name>$"
 declare -A data_regexes=(
@@ -31,6 +36,7 @@ for re_key in "${!data_regexes[@]}"; do
 done
 cart_name="$(echo "${extracted_data['cart_name']}" | sed -E 's/[^a-zA-Z0-9]+/-/g' | sed -E 's/^-+|-+$//g')"
 now="$(date -Iseconds)"
-new_fn="agent-${cart_name}-with-${extracted_data['reward']}-rew-${extracted_data['steps']}-steps-${now}.mp4"
+mkdir -p videos 2> /dev/null || true
+new_fn="videos/agent-${cart_name}-with-${extracted_data['reward']}-rew-${extracted_data['steps']}-steps-${now}.mp4"
 mv -v agent.mp4 "$new_fn"
 echo "Done, video in '$new_fn'"

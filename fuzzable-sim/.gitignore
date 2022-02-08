@@ -5,6 +5,7 @@ plot_data
 .cur_input
 fuzz_bitmap
 fuzzer_stats
+fuzzer_findings*
 *.png
 *.wav
 *.mp4
