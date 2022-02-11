@@ -39,12 +39,14 @@ else
     declare -a interact_flags
 fi
 
+# Note that --log-driver none prevents Docker from saving all stdout forever.
 # FIXME(sam): use `root` user when running with user-mode docker (which maps
 # `root` UID to host user UID) and `wabbit` otherwise.
 exec docker run "${interact_flags[@]}" --rm \
     -v "$above_dir:$mount_repo_dest:rw" \
     -v "$host_rom_dir:$mount_rom_dest:ro" \
     -w "$mount_repo_dest/fuzzable-sim" \
+    --log-driver none \
     -u root \
     "$latest_wabbit_uid_gid" \
     bash -c 'ln -s ~wabbit/etc /root/etc && eval -- "$@"' -- "$@"
